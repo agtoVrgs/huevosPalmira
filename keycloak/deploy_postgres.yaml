@@ -1,0 +1,57 @@
+# kubectl apply -f deploy_postgres.yaml
+# kubectl delete -f deploy_postgres.yaml
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14
+          env:
+            - name: POSTGRES_DB
+              value: keycloak_DB
+            - name: POSTGRES_USER
+              value: keycloak_USER
+            - name: POSTGRES_PASSWORD
+              value: keycloak_PASS
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: initscript
+              mountPath: /docker-entrypoint-initdb.d/init-user-db.bash
+      volumes:
+        - name: postgres-data
+          hostPath:
+            path: /home/ubuntu/app/keycloak_UCI/postgresData
+        - name: initscript
+          hostPath:
+            path: /home/ubuntu/app/keycloak_UCI/init-user-db.bash
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP

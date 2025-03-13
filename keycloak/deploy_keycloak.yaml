@@ -1,0 +1,61 @@
+# kubectl apply -f deploy_keycloak.yaml
+# kubectl delete -f deploy_keycloak.yaml
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:22.0
+          ports:
+            - containerPort: 8080
+            - containerPort: 8443
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: passw0rd
+        # command: ["start --import-realm"]
+        #  command: ["/opt/keycloak/bin/kc.sh", "start", "--import-realm"]
+          command: ["/opt/keycloak/bin/kc.sh", "start","--optimized"]
+          volumeMounts:
+            - name: keycloak-conf
+              mountPath: /opt/keycloak/conf
+            - name: keycloak-import
+              mountPath: /opt/keycloak/data/import
+      volumes:
+        - name: keycloak-conf
+          hostPath:
+            path: /home/ubuntu/app/keycloak_UCI/data/conf
+        - name: keycloak-import
+          hostPath:
+            path: /home/ubuntu/app/keycloak_UCI/data/import
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-service
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: https
+      port: 8443
+      targetPort: 8443
+  type: ClusterIP # NodePort
+

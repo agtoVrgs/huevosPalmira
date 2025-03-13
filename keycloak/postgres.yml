@@ -1,0 +1,25 @@
+# docker-compose -f postgres.yml up -d
+
+version: '3.8'
+
+networks:
+  cysdvps:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres-keycloak
+    environment:
+      POSTGRES_DB: keycloak_DB
+      POSTGRES_USER: keycloak_USER
+      POSTGRES_PASSWORD: keycloak_PASS
+    networks:
+      - cysdvps
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

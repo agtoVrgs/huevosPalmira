@@ -1,0 +1,40 @@
+
+	
+	## Para crear el secreto TSL 
+   $ sudo microk8s kubectl create secret tls cysce-secret-tls --cert=fullchain.pem --key=privkey.pem
+	
+	## Verificar con
+   $ sudo microk8s kubectl get secret cysce-secret-tls
+   $ sudo microk8s kubectl describe secret cysce-secret-tls
+   $ sudo microk8s kubectl get secret cysce-secret-tls -o jsonpath='{.data}'
+   $ sudo microk8s kubectl get secret cysce-secret-tls -o jsonpath='{.data.tls\.crt}' | base64 --decode
+
+
+   ## DOCUMENTACION
+
+	### Obtener pod del ingress
+
+	sudo microk8s kubectl get pods -n ingress
+	sudo microk8s kubectl logs -n ingress <NAME-INGRESS-POD>
+
+	### secret.yaml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-tls
+type: kubernetes.io/tls
+stringData:
+  # the data is abbreviated in this example
+  tls.crt: |
+    --------BEGIN CERTIFICATE-----
+    MIIC2DCCAcCgAwIBAgIBATANBgkqh ...    
+  tls.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpgIBAAKCAQEA7yn3bRHQ5FHMQ ...  
+
+	### Obtener el secreto por kubectl
+
+kubectl create secret tls my-tls-secret \
+  --cert=path/to/cert/file \
+  --key=path/to/key/file
