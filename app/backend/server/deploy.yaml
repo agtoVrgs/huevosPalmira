@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-app
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: server-app
+  template:
+    metadata:
+      labels:
+        app: server-app
+    spec:
+#      initContainers:
+#        - name: install-dependencies
+#          image: node:22-alpine3.19
+#          command: ["sh", "-c", "npm install"]
+#          volumeMounts:
+#            - name: app-volume
+#              mountPath: /server
+      containers:
+        - name: server-app
+          image: 'node:22-alpine3.19'
+          workingDir: /server
+          command: ["npm", "run", "start:prod"]
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+            requests:
+              memory: 256Mi
+              cpu: 250m
+          volumeMounts:
+            - name: app-volume
+              mountPath: /server
+      volumes:
+        - name: app-volume
+          hostPath:
+            path: /home/ubuntu/app/huevosPalmira/app/backend/server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-app
+spec:
+  selector:
+    app: server-app
+  ports:
+    - protocol: TCP
+      port: 8595
+      targetPort: 8595
+  type: ClusterIP

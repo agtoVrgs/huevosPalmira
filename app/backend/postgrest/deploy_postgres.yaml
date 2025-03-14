@@ -32,10 +32,10 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /home/mario/appTest/backend/postgrest/postgresData
+            path: /home/ubuntu/app/huevosPalmira/app/backend/postgrest/postgresData
         - name: initscript
           hostPath:
-            path: /home/mario/appTest/backend/postgrest/init-user-db.bash
+            path: /home/ubuntu/app/huevosPalmira/app/backend/postgrest/init-user-db.bash
 ---
 apiVersion: v1
 kind: Service
@@ -47,6 +47,6 @@ spec:
   ports:
     - name: postgres
       protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 5454
+      targetPort: 5454
   type: ClusterIP
